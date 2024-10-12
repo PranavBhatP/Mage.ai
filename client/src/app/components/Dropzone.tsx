@@ -5,6 +5,7 @@ export default function Dropzone() {
   const [previewImage, setPreviewImage] = useState<string>("");
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [upscaledImageUrl, setUpscaledImageUrl] = useState<string>("");
+  const [loadingState, setLoadingState] = useState<boolean>(false);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]; // Use optional chaining to handle the case where files may be null
@@ -16,6 +17,7 @@ export default function Dropzone() {
   };
   
   const handleFileUpload = async () => {
+    setLoadingState(true);
     if(!uploadedImage) return;
     const formData = new FormData();
 
@@ -33,6 +35,7 @@ export default function Dropzone() {
       if(response?.ok) {
         const blob = await response.blob();
         const upscaledImageUrl = URL.createObjectURL(blob);
+        setLoadingState(false);
         setUpscaledImageUrl(upscaledImageUrl);
         setPreviewImage(upscaledImageUrl);
       } else {
@@ -97,13 +100,17 @@ export default function Dropzone() {
         }
       </div>
 
+      {!loadingState ? 
       <button
         type="button"
         onClick={handleFileUpload}
         className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
       >
         Let's Go!
-      </button>
+      </button>: 
+      <div className = "text-white text-lg font-semibold ">
+        Loading...
+      </div>}
 
       {upscaledImageUrl && (
         <a
