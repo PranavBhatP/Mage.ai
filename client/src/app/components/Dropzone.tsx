@@ -1,50 +1,55 @@
-'use client'
+'use client';
 import React, { useState } from 'react';
+import Image from 'next/image';
 
 export default function Dropzone() {
   const [previewImage, setPreviewImage] = useState<string>("");
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [upscaledImageUrl, setUpscaledImageUrl] = useState<string>("");
   const [loadingState, setLoadingState] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]; // Use optional chaining to handle the case where files may be null
+    const file = event.target.files?.[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setPreviewImage(imageUrl);
       setUploadedImage(file);
+      setErrorMessage("");
     }
   };
-  
+
   const handleFileUpload = async () => {
     setLoadingState(true);
-    if(!uploadedImage) return;
-    const formData = new FormData();
+    if (!uploadedImage) return;
 
+    const formData = new FormData();
     formData.append('file', uploadedImage);
 
     try {
       const response = await fetch('https://mage-ai-ew9t.onrender.com/upscale/', {
         method: 'POST',
         body: formData,
-        // headers: {
-        //   'Content-Type': 'multipart/form-data'
-        // }
       });
-      console.log(response)
-      if(response?.ok) {
+
+      if (response.ok) {
         const blob = await response.blob();
         const upscaledImageUrl = URL.createObjectURL(blob);
-        setLoadingState(false);
         setUpscaledImageUrl(upscaledImageUrl);
         setPreviewImage(upscaledImageUrl);
       } else {
-        console.error("Failed to upscale!");
+        setErrorMessage("Failed to upscale the image!");
       }
-    } catch (e:any) {
-      console.error("Error uploading image: " + e.message);
+    } catch (e:unknown) {
+        if(e instanceof Error) {
+          setErrorMessage("Error uploading image"+e);
+        } else {
+          setErrorMessage("An unexpected error occurred while uploading the image!");
+        }
+      } finally {
+      setLoadingState(false);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col gap-y-10 items-center justify-center w-full">
@@ -70,8 +75,7 @@ export default function Dropzone() {
               />
             </svg>
             <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-              <span className="font-semibold">Click to upload</span> or drag and
-              drop
+              <span className="font-semibold">Click to upload</span> or drag and drop
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
               SVG, PNG, JPG or GIF (MAX. 800x400px)
@@ -87,40 +91,50 @@ export default function Dropzone() {
 
         {previewImage ? (
           <div className="flex ml-4 w-1/2 items-center justify-center border-gray-600 border rounded-xl">
-            <img
+            <Image
               src={previewImage}
               alt="Preview"
               className="object-cover rounded-lg h-64 w-full"
+              width={256}
+              height={256}
             />
           </div>
-        ): 
-        <div className= 'flex ml-4 w-1/2 items-center justify-center border-gray-600 border rounded-xl'>
-          <h2 className = "text-gray-600 text-center p-4">Image preview here!</h2>
-        </div>
-        }
+        ) : (
+          <div className='flex ml-4 w-1/2 items-center justify-center border-gray-600 border rounded-xl'>
+            <h2 className="text-gray-600 text-center p-4">Image preview here!</h2>
+          </div>
+        )}
       </div>
 
-      {!loadingState ? 
-      <button
-        type="button"
-        onClick={handleFileUpload}
-        className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-      >
-        Let's Go!
-      </button>: 
-      <div className = "text-white text-lg font-semibold ">
-        Loading...
-      </div>}
+      {errorMessage && (
+        <div className="text-red-500 text-lg font-semibold">
+          {errorMessage}
+        </div>
+      )}
+
+      {!loadingState ? (
+        <button
+          type="button"
+          onClick={handleFileUpload}
+          className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        >
+          Let&apos;s Go!
+        </button>
+      ) : (
+        <div className="text-white text-lg font-semibold ">
+          Loading...
+        </div>
+      )}
 
       {upscaledImageUrl && (
         <a
-          href = {upscaledImageUrl}
+          href={upscaledImageUrl}
           download="upscale_image.png"
           className="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
         >
           Download Upscaled Image
         </a>
-      )} 
+      )}
     </div>
   );
 }
