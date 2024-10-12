@@ -122,7 +122,7 @@ export default function Dropzone() {
         </button>
       ) : (
         <div className="text-white text-lg font-semibold ">
-          Loading...
+          Loading...This will take a while...
         </div>
       )}
 
