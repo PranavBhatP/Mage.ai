@@ -10,7 +10,7 @@ app  = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://mage-ai-3t91.vercel.app/"],
+    allow_origins=["https://mage-ai-two.vercel.app/"],
     allow_credentials=True,
     allow_methods=["*"],  
     allow_headers=["*"],  
