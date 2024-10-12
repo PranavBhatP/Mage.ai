@@ -24,7 +24,7 @@ export default function Dropzone() {
     formData.append('file', uploadedImage);
 
     try {
-      const response = await fetch('http://localhost:8000/upscale/', {
+      const response = await fetch('https://mage-ai-ew9t.onrender.com/upscale/', {
         method: 'POST',
         body: formData,
         // headers: {
