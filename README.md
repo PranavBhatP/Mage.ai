@@ -103,7 +103,8 @@ cd Mage.ai
 2. **Upscale**: Click the "Let's Go!" button to process the image using the backend ESRGAN model.
 3. **Download the Image**: Once processed, download your upscaled image.
 
-![image of website](image.png)
+![walkthorough of the website](https://github.com/user-attachments/assets/eef750ff-c56f-46fb-b244-0bd1dd9f3134)
+
 
 ---
 
